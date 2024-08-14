@@ -62,7 +62,13 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation (libs.accompanist.swiperefresh)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.adapter.rxjava2)
+    implementation (libs.logging.interceptor)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.runtime.livedata)
 
 
     testImplementation(libs.junit)

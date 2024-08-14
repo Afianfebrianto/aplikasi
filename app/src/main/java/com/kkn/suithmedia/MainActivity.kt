@@ -86,7 +86,13 @@ fun MainNavGraph() {
             val name = backStackEntry.arguments?.getString("name") ?: ""
             SecondScreen(navController = navController, name = name)
         }
-        composable("third_screen") { ThirdScreen() }
+        composable("third_screen") {
+            ThirdScreen(navController) { selectedUserName ->
+                // Update selected user name in SecondScreen
+                val backStackEntry = navController.previousBackStackEntry
+                backStackEntry?.savedStateHandle?.set("selectedUserName", selectedUserName)
+            }
+        }
     }
 }
 
@@ -97,6 +103,7 @@ fun FirstScreen(navController : NavController) {
     var palindrome by rememberSaveable { mutableStateOf("") }
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var isPalindrome by rememberSaveable { mutableStateOf(false) }
+    var dialogMessage by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -163,14 +170,25 @@ fun FirstScreen(navController : NavController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = {
-                isPalindrome = checkPalindrome(palindrome)
-                showDialog = true
+                if (palindrome.isEmpty()) {
+                    dialogMessage = "Palindrome field cannot be empty."
+                    showDialog = true
+                } else {
+                    val isPalindrome = checkPalindrome(palindrome)
+                    dialogMessage = if (isPalindrome) "isPalindrome" else "bukan palindrome"
+                    showDialog = true
+                }
             }) {
                 Text(text = "Check")
             }
 
             Button(onClick = {
-                navController.navigate("second_screen/$name")
+                if (name.isEmpty()) {
+                    dialogMessage = "Name field cannot be empty."
+                    showDialog = true
+                } else {
+                    navController.navigate("second_screen/$name")
+                }
             }) {
                 Text(text = "Next")
             }
@@ -185,10 +203,10 @@ fun FirstScreen(navController : NavController) {
                     }
                 },
                 title = {
-                    Text("Palindrome Check")
+                    Text("Alert")
                 },
                 text = {
-                    Text(if (isPalindrome) "isPalindrome" else "bukan palindrome")
+                    Text(dialogMessage)
                 }
             )
         }
