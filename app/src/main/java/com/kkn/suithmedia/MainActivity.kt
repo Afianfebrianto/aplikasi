@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -50,6 +51,8 @@ import coil.compose.rememberImagePainter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -64,7 +67,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SuithmediaTheme {
-                    MainNavGraph()
+                MainNavGraph()
             }
         }
     }
@@ -98,120 +101,149 @@ fun MainNavGraph() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FirstScreen(navController : NavController) {
+fun FirstScreen(navController: NavController) {
     var name by rememberSaveable { mutableStateOf("") }
     var palindrome by rememberSaveable { mutableStateOf("") }
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var isPalindrome by rememberSaveable { mutableStateOf(false) }
     var dialogMessage by rememberSaveable { mutableStateOf("") }
 
-    Column(
+    Box(
         modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(8.dp)
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center // Menempatkan seluruh konten di tengah
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.Center
+                .verticalScroll(rememberScrollState())
+                .padding(8.dp)
         ) {
-            ProfileImage()
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 4.dp, bottom = 15.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            TextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = { Text(text = "Name")},
-                shape = RoundedCornerShape(35.dp),
-                maxLines = 1,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                )
-
-
-            )
-
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 4.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            TextField(
-                value = palindrome,
-                onValueChange = { palindrome = it },
-                placeholder = { Text(text = "Palindrome")},
-                shape = RoundedCornerShape(35.dp),
-                maxLines = 1,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                )
-            )
-
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = {
-                if (palindrome.isEmpty()) {
-                    dialogMessage = "Palindrome field cannot be empty."
-                    showDialog = true
-                } else {
-                    val isPalindrome = checkPalindrome(palindrome)
-                    dialogMessage = if (isPalindrome) "isPalindrome" else "bukan palindrome"
-                    showDialog = true
-                }
-            }) {
-                Text(text = "Check")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ProfileImage()
             }
 
-            Button(onClick = {
-                if (name.isEmpty()) {
-                    dialogMessage = "Name field cannot be empty."
-                    showDialog = true
-                } else {
-                    navController.navigate("second_screen/$name")
-                }
-            }) {
-                Text(text = "Next")
-            }
-        }
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 25.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = { Text(text = "Name", color = Color.Gray.copy(alpha = 0.6f)) },
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 1,
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
 
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                confirmButton = {
+
+                )
+
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 45.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextField(
+                    value = palindrome,
+                    onValueChange = { palindrome = it },
+                    placeholder = {
+                        Text(
+                            text = "Palindrome",
+                            color = Color.Gray.copy(alpha = 0.8f),
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 1,
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                )
+
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 25.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+                        if (palindrome.isEmpty()) {
+                            dialogMessage = "Palindrome field cannot be empty."
+                            showDialog = true
+                        } else {
+                            val isPalindrome = checkPalindrome(palindrome)
+                            dialogMessage = if (isPalindrome) "isPalindrome" else "bukan palindrome"
+                            showDialog = true
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth(),
+                ) {
+                    Text(text = "Check")
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+                        if (name.isEmpty()) {
+                            dialogMessage = "Name field cannot be empty."
+                            showDialog = true
+                        } else {
+                            navController.navigate("second_screen/$name")
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(text = "Next")
+                }
+            }
+
+            if (showDialog) {
+                AlertDialog(onDismissRequest = { showDialog = false }, confirmButton = {
                     Button(onClick = { showDialog = false }) {
                         Text("OK")
                     }
-                },
-                title = {
+                }, title = {
                     Text("Alert")
-                },
-                text = {
+                }, text = {
                     Text(dialogMessage)
-                }
-            )
-        }
+                })
+            }
 
+        }
     }
+
 
 }
 
@@ -219,10 +251,8 @@ fun FirstScreen(navController : NavController) {
 fun ProfileImage() {
     val imageUrl = rememberSaveable { mutableStateOf("") }
     val painter = rememberImagePainter(
-        if (imageUrl.value.isEmpty())
-            R.drawable.ic_user
-        else
-            imageUrl.value
+        if (imageUrl.value.isEmpty()) R.drawable.ic_user
+        else imageUrl.value
     )
 
     val launcher = rememberLauncherForActivityResult(
@@ -231,29 +261,42 @@ fun ProfileImage() {
         uri?.let { imageUrl.value = it.toString() }
     }
 
+
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
-            shape = CircleShape,
+        Box(
             modifier = Modifier
-                .padding(8.dp)
-                .size(100.dp)
+                .size(116.dp) // Ukuran lingkaran
+                .background(
+                    color = Color.White.copy(alpha = 0.3f), // Semi transparan
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
         ) {
+            Image(
+                painter = rememberImagePainter(imageUrl.value),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize() // Mengisi seluruh lingkaran
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+
+            // Overlay icon
             Image(
                 painter = painter,
                 contentDescription = null,
                 modifier = Modifier
-                    .wrapContentSize()
+                    .size(60.dp) // Ukuran ikon lebih kecil
                     .clickable { launcher.launch("image/*") },
                 contentScale = ContentScale.Crop
             )
         }
         Text(text = "Change profile picture")
-
     }
 }
 
@@ -264,16 +307,17 @@ fun checkPalindrome(text: String): Boolean {
 
 @Composable
 fun BgGradient(content: @Composable () -> Unit) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(
-            Brush.linearGradient(
-                0.0f to Color.Magenta,
-                500.0f to Color.Cyan,
-                start = Offset.Zero,
-                end = Offset.Infinite
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    0.0f to Color.Magenta,
+                    500.0f to Color.Cyan,
+                    start = Offset.Zero,
+                    end = Offset.Infinite
+                )
             )
-        )
     ) {
         content()
     }

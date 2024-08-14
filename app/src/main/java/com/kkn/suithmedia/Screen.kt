@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -36,6 +37,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -47,53 +51,77 @@ import com.kkn.suithmedia.model.User
 @Composable
 fun SecondScreen(navController: NavController, name: String) {
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-    var selectedUserName by rememberSaveable { mutableStateOf("No User Selected") }
+    var selectedUserName by rememberSaveable { mutableStateOf("Selected User Name") }
 
     // Observe changes in selectedUserName from SavedStateHandle
-    savedStateHandle?.getLiveData<String>("selectedUserName")?.observeAsState()?.value?.let { userName ->
-        selectedUserName = userName
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Second Screen") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
+    savedStateHandle?.getLiveData<String>("selectedUserName")
+        ?.observeAsState()?.value?.let { userName ->
+            selectedUserName = userName
         }
-    ) {
-        Column(
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Second Screen", style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+        }, navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back",
+                    tint = Color(0xFF554AF0)
+                )
+            }
+        })
+    }) {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            Text(
-                text = "Welcome",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(8.dp)
-            )
+            Column(
+                modifier = Modifier.align(Alignment.TopStart)
+            ) {
+                Text(
+                    text = "Welcome",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
 
-            Text(
-                text = "Name: $name",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(8.dp)
-            )
+                Text(
+                    text = "$name", style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
 
-            Text(
-                text = "Selected User: $selectedUserName",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(8.dp)
-            )
+            Column(
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                Text(
+                    text = "$selectedUserName", style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
 
-            Button(onClick = {
-                navController.navigate("third_screen")
-            }) {
+            Button(
+                onClick = { navController.navigate("third_screen") },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
                 Text(text = "Choose a User")
             }
         }
@@ -110,27 +138,28 @@ fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) 
 
     val listState = rememberLazyListState()
 
-    // Monitor scroll state
-//    LaunchedEffect(listState) {
-//        snapshotFlow { listState.isScrolledToTheEnd() }
-//            .collect { isScrolledToEnd ->
-//                if (isScrolledToEnd && !isLoading) {
-//                    viewModel.fetchUsers()
-//                }
-//            }
-//    }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Third Screen") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+    Scaffold(topBar = {
+        TopAppBar(title = {  Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "Third Screen", style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                )
             )
-        }
-    ) {
+        } }, navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back",
+                    tint = Color(0xFF554AF0)
+                )
+            }
+        })
+    }) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -140,8 +169,7 @@ fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) 
         ) {
             if (isEmpty && !isLoading) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Text(text = "No Users Found")
                 }
@@ -150,7 +178,9 @@ fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) 
                     items(users) { user ->
                         UserItem(user = user, onClick = {
                             val selectedUserName = "${user.first_name} ${user.last_name}"
-                            navController.previousBackStackEntry?.savedStateHandle?.set("selectedUserName", selectedUserName)
+                            navController.previousBackStackEntry?.savedStateHandle?.set(
+                                "selectedUserName", selectedUserName
+                            )
                             navController.popBackStack()
                         })
                     }
@@ -182,25 +212,25 @@ fun LazyListState.isScrolledToTheEnd(): Boolean {
 
 @Composable
 fun UserItem(user: User, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onClick() }
-    ) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)
+        .clickable { onClick() }) {
         Image(
             painter = rememberImagePainter(data = user.avatar),
             contentDescription = null,
             modifier = Modifier
-                .size(50.dp)
+                .size(60.dp)
                 .clip(CircleShape)
         )
         Column(modifier = Modifier.padding(start = 8.dp)) {
             Text(
                 text = "${user.first_name} ${user.last_name}",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
             )
-            Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
+            Text(text = user.email, style = MaterialTheme.typography.titleSmall)
         }
     }
 }
