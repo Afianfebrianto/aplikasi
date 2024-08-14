@@ -67,11 +67,23 @@ fun SecondScreen(navController: NavController, name: String) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Welcome", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(8.dp))
+            Text(
+                text = "Welcome",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(8.dp)
+            )
 
-            Text(text = "Name: $name", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(8.dp))
+            Text(
+                text = "Name: $name",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(8.dp)
+            )
 
-            Text(text = "Selected User: $selectedUserName", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(8.dp))
+            Text(
+                text = "Selected User: $selectedUserName",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(8.dp)
+            )
 
             Button(onClick = {
                 navController.navigate("third_screen")
@@ -82,6 +94,7 @@ fun SecondScreen(navController: NavController, name: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) {
     val viewModel: UsersViewModel = viewModel()
@@ -100,28 +113,48 @@ fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) 
 //                }
 //            }
 //    }
-
-    Column {
-        if (isEmpty && !isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "No Users Found")
-            }
-        } else {
-            LazyColumn(state = listState) {
-                items(users) { user ->
-                    UserItem(user = user, onClick = {
-                        onUserSelected("${user.first_name} ${user.last_name}")
-                        navController.popBackStack()
-                    })
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Third Screen") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
                 }
-                if (isLoading) {
-                    item {
-                        CircularProgressIndicator(modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.CenterHorizontally))
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isEmpty && !isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "No Users Found")
+                }
+            } else {
+                LazyColumn(state = listState) {
+                    items(users) { user ->
+                        UserItem(user = user, onClick = {
+                            onUserSelected("${user.first_name} ${user.last_name}")
+                            navController.popBackStack()
+                        })
+                    }
+                    if (isLoading) {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
                     }
                 }
             }
@@ -156,7 +189,10 @@ fun UserItem(user: User, onClick: () -> Unit) {
                 .clip(CircleShape)
         )
         Column(modifier = Modifier.padding(start = 8.dp)) {
-            Text(text = "${user.first_name} ${user.last_name}", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = "${user.first_name} ${user.last_name}",
+                style = MaterialTheme.typography.bodyLarge
+            )
             Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
         }
     }
