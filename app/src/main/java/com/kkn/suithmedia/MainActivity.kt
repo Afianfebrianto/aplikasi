@@ -50,6 +50,12 @@ import coil.compose.rememberImagePainter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.kkn.suithmedia.ui.theme.SuithmediaTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,21 +64,35 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SuithmediaTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    BgGradient()
-                    FirstScreen()
-                }
+                    MainNavGraph()
             }
         }
     }
 }
 
+@Composable
+fun MainNavGraph() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "first_screen") {
+        composable("first_screen") {
+            BgGradient {
+                FirstScreen(navController)
+            }
+        }
+        composable(
+            route = "second_screen/{name}",
+            arguments = listOf(navArgument("name") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            SecondScreen(navController = navController, name = name)
+        }
+        composable("third_screen") { ThirdScreen() }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FirstScreen() {
+fun FirstScreen(navController : NavController) {
     var name by rememberSaveable { mutableStateOf("") }
     var palindrome by rememberSaveable { mutableStateOf("") }
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -150,7 +170,7 @@ fun FirstScreen() {
             }
 
             Button(onClick = {
-//                navController.navigate("second_screen")
+                navController.navigate("second_screen/$name")
             }) {
                 Text(text = "Next")
             }
@@ -225,20 +245,26 @@ fun checkPalindrome(text: String): Boolean {
 }
 
 @Composable
-fun BgGradient() {
-    val gradient = Brush.linearGradient(
-        0.0f to Color.Magenta,
-        500.0f to Color.Cyan,
-        start = Offset.Zero,
-        end = Offset.Infinite
-    )
-    Box(modifier = Modifier.background(gradient))
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FirstScreenPreview() {
-    SuithmediaTheme {
-        FirstScreen()
+fun BgGradient(content: @Composable () -> Unit) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(
+            Brush.linearGradient(
+                0.0f to Color.Magenta,
+                500.0f to Color.Cyan,
+                start = Offset.Zero,
+                end = Offset.Infinite
+            )
+        )
+    ) {
+        content()
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun FirstScreenPreview() {
+//    SuithmediaTheme {
+//        FirstScreen()
+//    }
+//}
