@@ -46,7 +46,13 @@ import com.kkn.suithmedia.model.User
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecondScreen(navController: NavController, name: String) {
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     var selectedUserName by rememberSaveable { mutableStateOf("No User Selected") }
+
+    // Observe changes in selectedUserName from SavedStateHandle
+    savedStateHandle?.getLiveData<String>("selectedUserName")?.observeAsState()?.value?.let { userName ->
+        selectedUserName = userName
+    }
 
     Scaffold(
         topBar = {
@@ -143,7 +149,8 @@ fun ThirdScreen(navController: NavController, onUserSelected: (String) -> Unit) 
                 LazyColumn(state = listState) {
                     items(users) { user ->
                         UserItem(user = user, onClick = {
-                            onUserSelected("${user.first_name} ${user.last_name}")
+                            val selectedUserName = "${user.first_name} ${user.last_name}"
+                            navController.previousBackStackEntry?.savedStateHandle?.set("selectedUserName", selectedUserName)
                             navController.popBackStack()
                         })
                     }
