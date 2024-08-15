@@ -26,6 +26,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -234,7 +236,9 @@ fun SecondScreen(navController: NavController, name: String) {
                     tint = Color(0xFF554AF0)
                 )
             }
-        })
+        },
+            modifier = Modifier.shadow(elevation = 4.dp)
+        )
     }) {
         Box(
             modifier = Modifier
@@ -293,18 +297,20 @@ fun ThirdScreen(navController: NavController) {
     val listState = rememberLazyListState()
 
     Scaffold(topBar = {
-        TopAppBar(title = {  Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Third Screen", style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
+        TopAppBar(title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Third Screen", style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
-        } }, navigationIcon = {
+            }
+        }, navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back),
@@ -312,7 +318,9 @@ fun ThirdScreen(navController: NavController) {
                     tint = Color(0xFF554AF0)
                 )
             }
-        })
+        },
+            modifier = Modifier.shadow(elevation = 4.dp)
+        )
     }) {
         Column(
             modifier = Modifier
@@ -336,7 +344,13 @@ fun ThirdScreen(navController: NavController) {
                                 "selectedUserName", selectedUserName
                             )
                             navController.popBackStack()
-                        })
+                        }
+                            )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = 1.dp,
+                            color = Color.Gray.copy(alpha = 0.3f)
+                        )
                     }
                     if (isLoading) {
                         item {
@@ -357,7 +371,7 @@ fun ThirdScreen(navController: NavController) {
 @Composable
 fun ProfileImage() {
     val imageUrl = rememberSaveable { mutableStateOf("") }
-    val painter = rememberImagePainter(
+    rememberImagePainter(
         imageUrl.value.ifEmpty { R.drawable.ic_user }
     )
 
@@ -366,38 +380,31 @@ fun ProfileImage() {
     ) { uri: Uri? ->
         uri?.let { imageUrl.value = it.toString() }
     }
-
-
-    Column(
+    Box(
         modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .size(116.dp)
+            .background(
+                color = Color.White.copy(alpha = 0.3f),
+                shape = CircleShape
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(116.dp) // Ukuran lingkaran
-                .background(
-                    color = Color.White.copy(alpha = 0.3f), // Semi transparan
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
+        if (imageUrl.value.isEmpty()) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_user),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(50.dp) // Ukuran ikon lebih kecil
+                    .clickable { launcher.launch("image/*") },
+                contentScale = ContentScale.Crop
+            )
+        } else {
             Image(
                 painter = rememberImagePainter(imageUrl.value),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize() // Mengisi seluruh lingkaran
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-
-            // Overlay icon
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp) // Ukuran ikon lebih kecil
+                    .fillMaxSize()
+                    .clip(CircleShape)
                     .clickable { launcher.launch("image/*") },
                 contentScale = ContentScale.Crop
             )
@@ -417,7 +424,8 @@ fun UserItem(user: User, onClick: () -> Unit) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp)
-        .clickable { onClick() }) {
+        .clickable { onClick() }
+        ) {
         Image(
             painter = rememberImagePainter(data = user.avatar),
             contentDescription = null,
